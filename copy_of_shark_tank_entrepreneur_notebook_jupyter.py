@@ -218,9 +218,51 @@ def check_conversation():
 
     return conversation_history
 
+# Function to save conversation history to JSON file
+def save_conversation_to_json(filename=None):
+    """Save the conversation history to a JSON file"""
+    global conversation_history
+    
+    # Debug: Show current state
+    print(f"📊 Current conversation history length: {len(conversation_history)} messages")
+    if len(conversation_history) == 0:
+        print("⚠️  Warning: Conversation history is empty. Make sure you've run initiate_pitch() or send_message() first.")
+    
+    if filename is None:
+        # Generate filename with timestamp
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        filename = f"entrepreneur_conversation_{timestamp}.json"
+    
+    # Prepare data to save
+    data_to_save = {
+        "business_idea": business_idea,
+        "conversation_history": conversation_history,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "total_messages": len(conversation_history)
+    }
+    
+    try:
+        # Get the full absolute path
+        full_path = os.path.abspath(filename)
+        with open(filename, 'w', encoding='utf-8') as f:
+            json.dump(data_to_save, f, indent=2, ensure_ascii=False)
+        print(f"✅ Conversation saved to: {full_path}")
+        print(f"   - Business idea: ✓")
+        print(f"   - Conversation messages: {len(conversation_history)}")
+        return full_path
+    except Exception as e:
+        print(f"❌ Error saving conversation: {e}")
+        return None
+
 # Function to send a message to the server and get response
-def send_message(content, sender="Entrepreneur"):
-    """Send a message to the server and get the response"""
+def send_message(content, sender="Entrepreneur", auto_save=False):
+    """Send a message to the server and get the response
+    
+    Args:
+        content: Message content to send
+        sender: Sender name (default: "Entrepreneur")
+        auto_save: If True, automatically save conversation to JSON after receiving response
+    """
     global conversation_history
 
     if not SERVER_URL:
@@ -244,13 +286,26 @@ def send_message(content, sender="Entrepreneur"):
 
         response_data = response.json()
 
-        # If there's a response from the judge, add it to local conversation history
-        if "response" in response_data and "sender" in response_data:
+        # Handle multiple responses (new format) or single response (old format)
+        if "messages" in response_data:
+            # New format: multiple messages from different judges
+            for msg in response_data["messages"]:
+                conversation_history.append({
+                    "role": msg["sender"],
+                    "content": msg["response"]
+                })
+                print(f"Received response from {msg['sender']}: {msg['response'][:100]}...")
+        elif "response" in response_data and "sender" in response_data:
+            # Old format: single response
             conversation_history.append({
                 "role": response_data["sender"],
                 "content": response_data["response"]
             })
-            print(f"Received response from {response_data['sender']}: {response_data['response']}...")
+            print(f"Received response from {response_data['sender']}: {response_data['response'][:100]}...")
+
+        # Auto-save if requested
+        if auto_save:
+            save_conversation_to_json()
 
         return response_data
     except requests.RequestException as e:
@@ -412,6 +467,20 @@ def keep_alive():
 
 # keep_alive()
 
+"""## Save Conversation to JSON
+
+Run this cell to save the conversation history to a JSON file.
+You can also call save_conversation_to_json() with a custom filename.
+
+IMPORTANT: Make sure you've run initiate_pitch() and received responses from the judge
+before saving, otherwise the conversation_history will be empty.
+"""
+
+# Save conversation to JSON file
+# Uncomment the line below AFTER you've had a conversation with the judge
+save_conversation_to_json("conversation.json")  # Uses auto-generated filename with timestamp
+# save_conversation_to_json("my_conversation.json")  # Or specify a custom filename
+
 if __name__ == "__main__":
     # Set the server URL (update this with the Judge's URL)
     if not SERVER_URL:
@@ -427,6 +496,13 @@ if __name__ == "__main__":
     
     # Check conversation
     check_conversation()
+    
+    # Save conversation to JSON after receiving responses
+    if len(conversation_history) > 0:
+        print("\n💾 Saving conversation to JSON...")
+        save_conversation_to_json("conversation.json")
+    else:
+        print("\n⚠️  No conversation history to save yet. Make sure the judge has responded.")
     
     # Optionally respond to feedback
     # Uncomment the line below to automatically respond

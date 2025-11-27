@@ -269,6 +269,18 @@ async def get_conversation_history():
     """Endpoint to get the full conversation history"""
     return conversation_history
 
+@app.post("/save_conversation")
+async def save_conversation_endpoint():
+    """Endpoint to save the conversation history to a JSON file"""
+    try:
+        filename = save_conversation_to_json()
+        if filename:
+            return {"status": "success", "filename": filename, "message": f"Conversation saved to {filename}"}
+        else:
+            return {"status": "error", "message": "Failed to save conversation"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 """## Step 8: Start the Server"""
 
 # Function to start the API server with ngrok
@@ -311,6 +323,34 @@ def check_conversation():
 
     return conversation_history
 
+# Function to save conversation history to JSON file
+def save_conversation_to_json(filename=None):
+    """Save the conversation history to a JSON file"""
+    global conversation_history
+    
+    if filename is None:
+        # Generate filename with timestamp
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        filename = f"judge_conversation_{timestamp}.json"
+    
+    # Prepare data to save
+    data_to_save = {
+        "conversation_history": conversation_history,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "total_messages": len(conversation_history)
+    }
+    
+    try:
+        # Get the full absolute path
+        full_path = os.path.abspath(filename)
+        with open(filename, 'w', encoding='utf-8') as f:
+            json.dump(data_to_save, f, indent=2, ensure_ascii=False)
+        print(f"✅ Conversation saved to: {full_path}")
+        return full_path
+    except Exception as e:
+        print(f"❌ Error saving conversation: {e}")
+        return None
+
 # Check the conversation history
 check_conversation()
 
@@ -327,6 +367,16 @@ def keep_alive():
     print(f"Current conversation length: {len(conversation_history)} messages")
 
 keep_alive()
+
+"""## Save Conversation to JSON
+
+Run this cell to save the conversation history to a JSON file.
+You can also call save_conversation_to_json() with a custom filename.
+"""
+
+# Save conversation to JSON file
+# save_conversation_to_json()  # Uses auto-generated filename with timestamp
+# save_conversation_to_json("my_conversation.json")  # Or specify a custom filename
 
 # Keep the script running
 print("\nServer is running. Press Ctrl+C to stop.")
