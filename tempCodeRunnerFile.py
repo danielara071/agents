@@ -1,0 +1,1 @@
+pip install crewai requests openai langchain langchain_openai urllib3 crewai[azure-ai-inference]
