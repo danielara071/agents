@@ -31,7 +31,7 @@ Let's get started!
 
 # Install necessary packages
 # This may take a minute to complete
-# pip install crewai requests openai langchain langchain_openai urllib3 crewai[azure-ai-inference]
+# pip3 install crewai requests openai langchain langchain_openai urllib3 crewai[azure-ai-inference]
 
 """## Step 2: Import Libraries"""
 
@@ -141,7 +141,7 @@ Customize this dictionary to create your own business idea for the pitch.
 
 # Define the business idea (feel free to modify this with your own business idea)
 business_idea = {
-    "name": "SleepWave",
+    "name": "Somnus",
     "description": "A wearable headband that uses gentle sound frequencies and micro-vibrations to help people fall asleep faster and improve sleep quality, powered by adaptive AI that learns each user's sleep patterns.",
     "target_market": "People with sleep issues, busy professionals, students, and wellness-focused consumers",
     "revenue_model": "Device sales + optional monthly subscription for personalized sleep analytics and advanced sleep-training programs",
@@ -397,7 +397,7 @@ def respond_to_feedback():
     # Get the last message from the judge
     judge_feedback = None
     for message in reversed(conversation_history):
-        if message["role"] == "Judge":
+        if message["role"] == "Judge 1" or message["role"] == "Judge 2":
             judge_feedback = message["content"]
             break
 
@@ -493,8 +493,11 @@ if __name__ == "__main__":
     
     # Wait a bit for response
     time.sleep(3)
-    
-    # Check conversation
+
+
+    respond_to_feedback()
+
+        # Check conversation
     check_conversation()
     
     # Save conversation to JSON after receiving responses
@@ -506,4 +509,4 @@ if __name__ == "__main__":
     
     # Optionally respond to feedback
     # Uncomment the line below to automatically respond
-    # respond_to_feedback()
+    

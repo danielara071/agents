@@ -32,7 +32,7 @@ Let's get started!
 
 # Install necessary packages
 # This may take a minute to complete
-#pip install crewai fastapi uvicorn pyngrok requests openai langchain langchain_openai urllib3 crewai[azure-ai-inference]
+#pip3 install crewai fastapi uvicorn pyngrok requests openai langchain langchain_openai urllib3 crewai[azure-ai-inference]
 
 """## Step 2: Import Libraries"""
 

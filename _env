@@ -1,0 +1,9 @@
+
+# Azure OpenAI configuration (used if API_TYPE = 'azure')
+AZURE_API_KEY=7H5WAEG132qR33NIzEKLSKdYBGY8L0roTUAV30IHXOeZNk6eohUbJQQJ99BJACYeBjFXJ3w3AAABACOG7cqC
+
+AZURE_ENDPOINT=https://tecchallenge.openai.azure.com/
+
+# Ngrok configuration
+NGROK_AUTH_TOKEN=35IB7QsPuKcDMUrLqFt5pwvoUyK_2PddVXxw8j95ibk7dhv3M  
+
